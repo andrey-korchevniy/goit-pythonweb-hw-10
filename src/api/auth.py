@@ -23,14 +23,14 @@ async def register(
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, 
-            detail="Пользователь с таким email уже существует"
+            detail="A user with the email already exist"
         )
     
     username_exists = await user_service.get_user_by_username(body.username)
     if username_exists:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Пользователь с таким username уже существует"
+            detail="A user with the name already exist"
         )
     
     hashed_password = get_password_hash(body.password)
@@ -52,21 +52,21 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Неверный логин или пароль",
+            detail="Bad login or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
     if not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Неверный логин или пароль",
+            detail="Bad login or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
     if not user.confirmed:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Электронная почта не подтверждена",
+            detail="Email is not confirmed",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
@@ -83,9 +83,9 @@ async def confirmed_email(token: str, db: AsyncSession = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST, detail="Ошибка верификации"
         )
     if user.confirmed:
-        return {"message": "Ваша электронная почта уже подтверждена"}
+        return {"message": "Your email is already confirmed"}
     await user_service.confirmed_email(email)
-    return {"message": "Электронная почта подтверждена"}
+    return {"message": "Your email is  confirmed"}
 
 @router.post("/request_email")
 async def request_email(
@@ -98,14 +98,14 @@ async def request_email(
     user = await user_service.get_user_by_email(body.email)
 
     if user and user.confirmed:
-        return {"message": "Ваша электронная почта уже подтверждена"}
+        return {"message": "Your email is already confirmed"}
     
     if user:
         background_tasks.add_task(
             send_email, user.email, user.username, str(request.base_url)
         )
     
-    return {"message": "Проверьте свою электронную почту для подтверждения"}
+    return {"message": "Check your email for confirmation"}
 
 @router.get("/me", response_model=UserResponse)
 async def read_users_me(current_user: UserResponse = Depends(get_current_user)):
