@@ -1,4 +1,5 @@
 [tool.poetry]
+package-mode = false
 name = "goit-pythonweb-hw-08"
 version = "0.1.0"
 description = "REST API for contact management"
@@ -13,6 +14,10 @@ fastapi = "^0.115.0"
 uvicorn = "^0.30.0"
 pydantic = {extras = ["email"], version = "^2.7.3"}
 python-multipart = "^0.0.10"
+pydantic-settings = "^2.8.1"
+python-jose = {extras = ["cryptography"], version = "^3.4.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+fastapi-mail = "^1.4.2"
 
     
 [build-system]
